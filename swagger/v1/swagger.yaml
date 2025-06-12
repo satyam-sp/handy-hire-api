@@ -1,0 +1,518 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/v1/employees/register_step":
+    post:
+      summary: Step-by-Step Employee Registration
+      tags:
+      - Employees
+      parameters:
+      - name: step
+        in: query
+        description: Registration Step (1, 2, or 3)
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Step 3 completed
+        '422':
+          description: Invalid Step
+      requestBody:
+        content:
+          '["multipart/form-data", "application/json"]':
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                mobile_number:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+                password_confirmation:
+                  type: string
+                date_of_birth:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                  enum:
+                  - male
+                  - female
+                  - other
+                email:
+                  type: string
+                profile_photo:
+                  type: string
+                  format: binary
+              required:
+              - full_name
+              - mobile_number
+              - username
+              - password
+              - password_confirmation
+  "/api/v1/employees/login":
+    post:
+      summary: Login an Employee
+      tags:
+      - Employees
+      parameters: []
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  example: testuser
+                password:
+                  type: string
+                  example: password123
+              required:
+              - login
+              - password
+  "/api/v1/employees/update_profile":
+    put:
+      summary: Update Employee Profile (Including Profile Photo)
+      tags:
+      - Employees
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '200':
+          description: Profile updated successfully
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          '["multipart/form-data", "application/json"]':
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  example: John Doe
+                job_categories:
+                  type: jsonb
+                  example:
+                  - 1
+                  - 2
+                expected_pay:
+                  type: number
+                  example: 500.0
+                profile_photo:
+                  type: string
+                  format: binary
+  "/api/v1/job_applications":
+    post:
+      summary: Apply for a Job
+      tags:
+      - Job Applications
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '201':
+          description: Application submitted successfully
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id:
+                  type: integer
+                cover_letter:
+                  type: string
+              required:
+              - job_id
+  "/api/v1/job_applications/{id}/update_status":
+    put:
+      summary: Update Application Status (Employer)
+      tags:
+      - Job Applications
+      security:
+      - Bearer: []
+      parameters:
+      - name: id
+        in: path
+        description: Application ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Application status updated
+        '404':
+          description: Application not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - accepted
+                  - rejected
+                  - completed
+              required:
+              - status
+  "/api/v1/job_applications/{id}/withdraw":
+    put:
+      summary: Withdraw Application (Employee)
+      tags:
+      - Job Applications
+      security:
+      - Bearer: []
+      parameters:
+      - name: id
+        in: path
+        description: Application ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Application withdrawn
+        '401':
+          description: Unauthorized
+  "/api/v1/job_categories":
+    get:
+      summary: Fetch Job Categories in Parent-Child Format
+      tags:
+      - Job Categories
+      responses:
+        '200':
+          description: Job categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    children:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+  "/api/v1/jobs":
+    post:
+      summary: Create a new job
+      tags:
+      - Jobs
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '201':
+          description: Job created successfully
+        '422':
+          description: Invalid request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Plumbing Work
+                description:
+                  type: string
+                  example: Need an experienced plumber for fixing a pipe
+                job_category_id:
+                  type: integer
+                  example: 1
+                location:
+                  type: string
+                  example: New Delhi
+                expected_pay:
+                  type: number
+                  example: 1000.0
+                pay_type:
+                  type: string
+                  enum:
+                  - hourly
+                  - daily
+                  - fixed
+                start_date:
+                  type: string
+                  format: date
+                  example: '2025-04-10'
+                end_date:
+                  type: string
+                  format: date
+                  example: '2025-04-12'
+                status:
+                  type: string
+                  enum:
+                  - open
+                  - closed
+                  - in_progress
+                  - completed
+              required:
+              - title
+              - description
+              - job_category_id
+              - location
+              - expected_pay
+              - pay_type
+  "/api/v1/jobs/{id}":
+    put:
+      summary: Update an existing job
+      tags:
+      - Jobs
+      security:
+      - Bearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Job updated successfully
+        '404':
+          description: Job not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Updated Job Title
+                description:
+                  type: string
+                  example: Updated Job Description
+                expected_pay:
+                  type: number
+                  example: 1200.0
+    delete:
+      summary: Delete an existing job
+      tags:
+      - Jobs
+      security:
+      - Bearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Job deleted successfully
+        '404':
+          description: Job not found
+  "/api/v1/reviews":
+    post:
+      summary: Submit a Review
+      tags:
+      - Reviews
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '201':
+          description: Review submitted successfully
+        '422':
+          description: Invalid data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id:
+                  type: integer
+                rating:
+                  type: integer
+                  enum:
+                  - 1
+                  - 2
+                  - 3
+                  - 4
+                  - 5
+                comment:
+                  type: string
+                anonymous:
+                  type: boolean
+                  example: false
+              required:
+              - job_id
+              - rating
+              - comment
+  "/api/v1/reviews/{employee_id}":
+    get:
+      summary: Get Employee Reviews
+      tags:
+      - Reviews
+      parameters:
+      - name: employee_id
+        in: path
+        description: Employee ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  employee:
+                    type: string
+                  average_rating:
+                    type: number
+                  reviews:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        rating:
+                          type: integer
+                        comment:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date
+                        reviewer:
+                          type: string
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  "/api/v1/users/register":
+    post:
+      summary: Register a new user
+      tags:
+      - Users
+      parameters: []
+      responses:
+        '201':
+          description: User created
+        '422':
+          description: Validation error
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                mobile_number:
+                  type: string
+                password:
+                  type: string
+                password_confirmation:
+                  type: string
+                profile_photo:
+                  type: string
+                  format: binary
+                address:
+                  type: string
+              required:
+              - full_name
+              - username
+              - email
+              - mobile_number
+              - password
+              - password_confirmation
+  "/api/v1/users/login":
+    post:
+      summary: User login
+      tags:
+      - Users
+      parameters: []
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  description: Username or Email
+                password:
+                  type: string
+              required:
+              - login
+              - password
+  "/api/v1/users/profile":
+    get:
+      summary: User Profile
+      tags:
+      - Users
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com
