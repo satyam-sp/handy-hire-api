@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_03_081152) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_25_171536) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -74,6 +74,41 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_03_081152) do
     t.index ["aadhaar_number"], name: "index_employees_on_aadhaar_number", unique: true
     t.index ["email"], name: "index_employees_on_email", unique: true
     t.index ["mobile_number"], name: "index_employees_on_mobile_number", unique: true
+  end
+
+  create_table "instant_job_applications", force: :cascade do |t|
+    t.bigint "employee_id", null: false
+    t.bigint "instant_job_id", null: false
+    t.decimal "final_price"
+    t.integer "status", default: 0, null: false
+    t.boolean "archived", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["employee_id"], name: "index_instant_job_applications_on_employee_id"
+    t.index ["instant_job_id"], name: "index_instant_job_applications_on_instant_job_id"
+  end
+
+  create_table "instant_jobs", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.float "latitude", null: false
+    t.float "longitude", null: false
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "city"
+    t.string "zipcode"
+    t.string "state"
+    t.string "country", default: "india"
+    t.integer "status", default: 0, null: false
+    t.bigint "user_id", null: false
+    t.bigint "job_category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "price"
+    t.integer "rate_type", default: 0, null: false
+    t.index ["job_category_id"], name: "index_instant_jobs_on_job_category_id"
+    t.index ["latitude", "longitude"], name: "index_instant_jobs_on_latitude_and_longitude"
+    t.index ["user_id"], name: "index_instant_jobs_on_user_id"
   end
 
   create_table "job_applications", force: :cascade do |t|
@@ -147,6 +182,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_03_081152) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "instant_job_applications", "employees"
+  add_foreign_key "instant_job_applications", "instant_jobs"
+  add_foreign_key "instant_jobs", "job_categories"
+  add_foreign_key "instant_jobs", "users"
   add_foreign_key "job_applications", "jobs"
   add_foreign_key "job_applications", "users"
   add_foreign_key "job_categories", "job_categories", column: "parent_id"

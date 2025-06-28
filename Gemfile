@@ -16,6 +16,8 @@ gem 'aws-sdk-s3', '~> 1.130'  # AWS SDK for S3
 gem 'bcrypt'
 gem 'jsonapi-serializer'
 
+gem 'geocoder'
+
 gem 'active_storage_validations'  # To validate uploaded files
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"

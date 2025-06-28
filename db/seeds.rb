@@ -40,4 +40,18 @@ job_categories.each do |parent_name, subcategories|
   end
 end
 
+
 puts "✅ Job categories and subcategories seeded successfully!"
+
+
+category = JobCategory.find_by(name: "Plumber")
+user = User.first
+
+InstantJob.create!(
+  title: "Experienced Plumber Needed for Complete Bathroom Fitting",
+  description: "Looking for a skilled plumber to install a new bathroom setup...",
+  latitude: 22.60,
+  longitude: 75.87,
+  user: user,
+  job_category: category
+)

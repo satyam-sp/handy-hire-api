@@ -12,6 +12,9 @@ class Employee < ApplicationRecord
     # 
     has_one_attached :avatar
 
+    has_many :instant_job_applications
+    has_many :instant_jobs, through: :instant_job_applications
+
 
       
     before_save :format_mobile_number

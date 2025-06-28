@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
+  mount ActionCable.server => '/cable'
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -21,6 +23,8 @@ Rails.application.routes.draw do
       resources :jobs
       resources :job_categories, only: [:index] do
       end
+
+      resources :instant_job_applications, only: [:create]
       resources :employees, only: [:update] do
         collection do
           post :register_step  # Multi-step registration
@@ -28,6 +32,18 @@ Rails.application.routes.draw do
           put  :update_profile # Update after registration
           get :get_employee
           patch  :update_avatar
+        end
+      end
+      resources :instant_jobs do
+        member do 
+          resources :instant_job_applications, only: [:create] do
+            collection do
+              post :cancel_application
+            end
+          end
+        end
+        collection do
+          post :get_jobs_by_cords
         end
       end
     end

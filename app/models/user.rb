@@ -8,7 +8,7 @@ class User < ApplicationRecord
   validates :mobile_number, presence: true, uniqueness: true
   validates :password, presence: true, length: { minimum: 6 }, if: :password_required?
 
-  validates :profile_photo, content_type: ['image/png', 'image/jpg', 'image/jpeg'], size: { less_than: 5.megabytes }
+  validates :profile_photo, content_type: ['image/png', 'image/jpeg'], size: { less_than: 5.megabytes }
 
   def profile_photo_url
     profile_photo.attached? ? Rails.application.routes.url_helpers.rails_blob_url(profile_photo, only_path: true) : nil
