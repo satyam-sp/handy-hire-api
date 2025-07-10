@@ -3,7 +3,7 @@ module Api
     class InstantJobSerializer
       include JSONAPI::Serializer
 
-      attributes :title, :description, :latitude, :longitude, :status, :id, :price, :rate_type_humanize, :created_at
+      attributes :title, :description, :latitude, :longitude, :status, :id, :price, :rate_type_humanize, :created_at,:slot_date, :slot_time
       attribute :distance_in_km do |job|
         job.respond_to?(:distance) ? job.distance&.round(2) : nil
       end

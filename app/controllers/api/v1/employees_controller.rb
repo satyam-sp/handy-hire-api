@@ -1,7 +1,7 @@
 class Api::V1::EmployeesController < ApplicationController
 
-  before_action :authorize_request, only: [:update_profile,:get_employee, :update_avatar]
-  before_action :authenticate_employee, only: [:update_profile,:get_employee, :update_avatar]
+  before_action :authorize_request, only: [:update_profile,:get_employee, :update_avatar, :upload_video]
+  before_action :authenticate_employee, only: [:update_profile,:get_employee, :update_avatar, :upload_video]
 
   # ✅ Login via username OR email
   def login
@@ -26,6 +26,25 @@ class Api::V1::EmployeesController < ApplicationController
       render json: Api::V1::EmployeeSerializer.new(current_employee).serializable_hash[:data][:attributes]
     else
       render json: {error: 'Employee not found'}, status: :unauthorized
+    end
+  end
+
+  def upload_video
+    if current_employee.videos.count >= 4
+      render json: { error: "Maximum 4 videos allowed" }, status: :unprocessable_entity
+      return
+    end
+
+    if params[:video].present?
+      current_employee.videos.attach(params[:video])
+
+      if current_employee.save
+        render json: { message: "Video uploaded successfully", video_urls: current_employee.videos.map { |v| url_for(v) } }
+      else
+        render json: { error: current_employee.errors.full_messages }, status: :unprocessable_entity
+      end
+    else
+      render json: { error: "No video file provided" }, status: :bad_request
     end
   end
 

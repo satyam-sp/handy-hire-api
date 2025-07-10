@@ -22,11 +22,25 @@ module Api
                  :work_location,
                  :availability,
                  :expected_pay,
-                 :languages_spoken
+                 :languages_spoken,
+                 :video_urls
 
       # attribute :profile_photo_url do |object|
       #   object.profile_photo.attached? ? Rails.application.routes.url_helpers.rails_blob_url(object.profile_photo, only_path: true) : nil
       # end
+      # 
+      attribute :video_urls do |job, params|      
+        if job.videos.attached?
+          job.videos.map do |video|
+            {
+              id: video.id,
+              url: Rails.application.routes.url_helpers.rails_blob_url(video)
+            }
+          end
+        else
+          []
+        end
+      end
     end
   end
 end

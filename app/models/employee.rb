@@ -15,7 +15,9 @@ class Employee < ApplicationRecord
     has_many :instant_job_applications
     has_many :instant_jobs, through: :instant_job_applications
 
+    has_many_attached :videos
 
+    validate :videos_limit
       
     before_save :format_mobile_number
   
@@ -25,5 +27,13 @@ class Employee < ApplicationRecord
 
     def job_categories
       JobCategory.where(id: job_category_ids)
+    end
+
+    private
+
+    def videos_limit
+      if videos.attached? && videos.count > 4
+        errors.add(:videos, "cannot have more than 4 videos")
+      end
     end
 end

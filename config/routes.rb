@@ -13,8 +13,10 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      post 'users/register', to: 'users#register'
-      post 'users/login', to: 'users#login'
+      resources :users, only: [:update] do
+        post :send_otp, on: :collection
+        post :verify_otp, on: :collection
+      end
       get 'users/profile', to: 'users#profile'
 
 
@@ -27,6 +29,7 @@ Rails.application.routes.draw do
       resources :instant_job_applications, only: [:create]
       resources :employees, only: [:update] do
         collection do
+          post :upload_video 
           post :register_step  # Multi-step registration
           post :login          # Login with username or email
           put  :update_profile # Update after registration
