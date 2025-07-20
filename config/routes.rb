@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       resources :users, only: [:update] do
         post :send_otp, on: :collection
         post :verify_otp, on: :collection
+        post :update_fcm_token, on: :collection
         get :get_current_user, on: :collection
       end
       get 'users/profile', to: 'users#profile'

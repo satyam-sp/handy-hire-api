@@ -3,6 +3,7 @@ class Api::V1::ReviewsController < ApplicationController
   before_action :set_job, only: [:create]
   before_action :check_job_completion, only: [:create]
 
+
   # ✅ Submit a Review (Supports Anonymous Mode)
   def create
     anonymous_allowed = ENV["ALLOW_ANONYMOUS_REVIEWS"] == "true"

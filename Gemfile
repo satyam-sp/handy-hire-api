@@ -20,6 +20,10 @@ gem 'httparty', '~> 0.21.0'
 
 gem 'geocoder'
 
+gem 'fcm'
+gem 'google-auth' # <-- Corrected gem name!
+gem 'openssl' # Explicitly add the standard OpenSSL gem
+
 gem 'active_storage_validations'  # To validate uploaded files
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"

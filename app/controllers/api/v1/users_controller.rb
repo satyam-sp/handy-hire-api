@@ -1,7 +1,7 @@
 # app/controllers/api/v1/users_controller.rb
 class Api::V1::UsersController < ApplicationController
   before_action :authorize_request, except: [:send_otp, :verify_otp] # If you have authentication for other actions
-  before_action :authorize_request, only: [:update, :get_current_user]
+  before_action :authorize_request, only: [:update, :get_current_user, :update_fcm_token]
   before_action :set_user, only: [:update]
 
   def send_otp
@@ -20,6 +20,15 @@ class Api::V1::UsersController < ApplicationController
     render json: { errors: ["Failed to send SMS: #{e.message}"] }, status: :internal_server_error
   rescue StandardError => e
     render json: { errors: ["An unexpected error occurred: #{e.message}"] }, status: :internal_server_error
+  end
+
+
+  def update_fcm_token
+    current_user.update(fcm_token: params[:_json])
+    render json: {
+      message: "user",
+      user: Api::V1::UserSerializer.new(current_user).serializable_hash[:data][:attributes],
+    }, status: :ok
   end
 
 
