@@ -17,9 +17,9 @@ Rails.application.configure do
   # Enable server timing
   config.server_timing = true
 
-  config.hosts << "fab0-2401-4900-1c09-1211-b5fa-2298-fb28-8cd4.ngrok-free.app"
+  config.hosts << "eb9aea6edb69.ngrok-free.app"
 
-  config.action_cable.url = "wss://fab0-2401-4900-1c09-1211-b5fa-2298-fb28-8cd4.ngrok-free.app/cable"
+  config.action_cable.url = "wss://eb9aea6edb69.ngrok-free.app/cable"
 
 
   config.action_cable.disable_request_forgery_protection = true

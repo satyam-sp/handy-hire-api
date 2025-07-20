@@ -15,6 +15,10 @@ class User < ApplicationRecord
     profile_photo.attached? ? Rails.application.routes.url_helpers.rails_blob_url(profile_photo, only_path: true) : nil
   end
 
+  has_many :addresses, dependent: :destroy # If a user is deleted, their addresses are also deleted
+  has_many :instant_jobs, dependent: :destroy # Assuming instant jobs are also linked to user
+
+
   def generate_otp_code
     # Implement your OTP generation logic (e.g., using SecureRandom, or a dedicated gem)
     # This should generate a 6-digit code

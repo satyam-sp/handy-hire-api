@@ -1,9 +1,20 @@
 class Api::V1::InstantJobsController < ApplicationController
+  # You might need a before_action to authenticate the user/customer for creating jobs
+  # For example: before_action :authenticate_customer!, only: [:create]
+  # Or if you have a general authentication: before_action :authenticate_user!, only: [:create]
 
   before_action :set_instance_job, only: [:show]
+  before_action :authorize_request, only: [:create, :get_active_jobs]
+
   def show
-    render json: Api::V1::InstantJobSerializer.new(@instance_job,{ params: {current_employee: current_employee} }).serializable_hash[:data][:attributes]
+    render json: Api::V1::InstantJobSerializer.new(@instance_job,{ params: {current_employee: current_employee, lang: params[:lang]} }).serializable_hash[:data][:attributes]
   end
+
+  def get_active_jobs
+    instant_jobs = current_user.instant_jobs.where(status: 'active')
+    render json: Api::V1::InstantJobsSerializer.new(instant_jobs, is_collection: true).serializable_hash[:data]
+  end
+
   def get_jobs_by_cords
     lat = params[:lat]
     lon = params[:lon]
@@ -21,14 +32,49 @@ class Api::V1::InstantJobsController < ApplicationController
              .near([lat, lon], radius_km, units: :km)
 
 
-
-
     render json: Api::V1::InstantJobsSerializer.new(jobs, is_collection: true).serializable_hash[:data]
 
   end
 
+  def create
+    # Assuming 'current_customer' is available from your authentication system
+    # and that an InstantJob belongs_to :customer
+    @instant_job = current_user.instant_jobs.new(instant_job_params)
+    if @instant_job.save
+      # Render the created job's attributes with a 201 Created status
+      render json: Api::V1::InstantJobSerializer.new(@instant_job).serializable_hash[:data][:attributes], status: :created
+    else
+      # Render validation errors with a 422 Unprocessable Entity status
+      render json: { errors: @instant_job.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  # --- END NEW ---
+
   private
+
   def set_instance_job
     @instance_job = InstantJob.find(params[:id])
   end
+
+  # --- NEW: Strong Parameters for Create Method ---
+  def instant_job_params
+    params.require(:instant_job).permit(
+      :title,
+      :description,
+      :job_category_id,
+      :slot_date,
+      :slot_time,
+      :rate_type,
+      :price,
+      :address_line_1,
+      :address_line_2,
+      :city,
+      :state,
+      :zip_code,
+      :latitude,
+      :longitude,
+      image_urls: [], 
+    )
+  end
+  # --- END NEW ---
 end

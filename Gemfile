@@ -16,6 +16,7 @@ gem 'aws-sdk-s3', '~> 1.130'  # AWS SDK for S3
 
 gem 'bcrypt'
 gem 'jsonapi-serializer'
+gem 'httparty', '~> 0.21.0'
 
 gem 'geocoder'
 

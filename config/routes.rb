@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       resources :users, only: [:update] do
         post :send_otp, on: :collection
         post :verify_otp, on: :collection
+        get :get_current_user, on: :collection
       end
       get 'users/profile', to: 'users#profile'
 
@@ -25,6 +26,9 @@ Rails.application.routes.draw do
       resources :jobs
       resources :job_categories, only: [:index] do
       end
+
+      resources :addresses, only: [:index, :create, :destroy] # <--- ADD THIS LINE
+
 
       resources :instant_job_applications, only: [:create]
       resources :employees, only: [:update] do
@@ -46,6 +50,7 @@ Rails.application.routes.draw do
           end
         end
         collection do
+          get :get_active_jobs
           post :get_jobs_by_cords
         end
       end

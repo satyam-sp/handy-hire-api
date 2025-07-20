@@ -3,7 +3,16 @@ module Api
     class InstantJobSerializer
       include JSONAPI::Serializer
 
-      attributes :title, :description, :latitude, :longitude, :status, :id, :price, :rate_type_humanize, :created_at,:slot_date, :slot_time
+      attributes  :title, :description, :latitude, :longitude, :status, :id, :price, :rate_type_humanize, :created_at,:slot_date, :slot_time
+      # attribute :title do |job, params|
+      #   get_translations(job, params)[:title]
+      # end
+    
+      # attribute :description do |job, params|
+      #   get_translations(job, params)[:description]
+      # end
+    
+      
       attribute :distance_in_km do |job|
         job.respond_to?(:distance) ? job.distance&.round(2) : nil
       end
@@ -51,6 +60,37 @@ module Api
         else
           'pending'
         end
+      end
+
+
+      private
+
+      def self.get_translations(job, params)
+        lang = params[:lang] || "en"
+        cache = params[:_translation_cache] ||= {}
+      
+        # If lang is empty or 'en', return original texts without translation
+        if lang == "en" || lang.empty?
+          return {
+            title: job.title.to_s,
+            description: job.description.to_s
+          }
+        end
+      
+        cache_key = "#{job.id}_#{lang}_#{job.updated_at.to_i}"
+        return cache[cache_key] if cache.key?(cache_key)
+      
+        result = Rails.cache.fetch("instant_job_#{cache_key}", expires_in: 12.hours) do
+          texts = [job.title.to_s, job.description.to_s]
+          translated = LibreTranslateService.new.translate_batch(texts, from: "en", to: lang)
+          {
+            title: translated[0],
+            description: translated[1]
+          }
+        end
+      
+        cache[cache_key] = result
+        result
       end
 
 
