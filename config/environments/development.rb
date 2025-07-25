@@ -17,10 +17,16 @@ Rails.application.configure do
   # Enable server timing
   config.server_timing = true
 
-  config.hosts << "eb9aea6edb69.ngrok-free.app"
 
-  config.action_cable.url = "wss://eb9aea6edb69.ngrok-free.app/cable"
+  config.serve_static_assets = true
+  config.public_file_server.enabled = true
 
+
+  config.hosts << "99b2b4ff54d5.ngrok-free.app"
+
+  config.action_cable.url = "wss://99b2b4ff54d5.ngrok-free.app/cable"
+
+  config.asset_host = 'https://99b2b4ff54d5.ngrok-free.app'
 
   config.action_cable.disable_request_forgery_protection = true
   config.action_cable.allowed_request_origins = ['*']

@@ -16,6 +16,7 @@ class Employee < ApplicationRecord
     has_many :instant_jobs, through: :instant_job_applications
 
     has_many_attached :videos
+    has_many :notifications, dependent: :destroy # Assuming employee is a recipient of notifications
 
     validate :videos_limit
       
@@ -27,6 +28,14 @@ class Employee < ApplicationRecord
 
     def job_categories
       JobCategory.where(id: job_category_ids)
+    end
+
+    def avatar_url
+      if avatar.attached?
+        Rails.application.routes.url_helpers.url_for(avatar)
+      else
+        ActionController::Base.helpers.asset_url('employee-avatar.png', host: Rails.application.config.asset_host || Rails.application.routes.default_url_options[:host])
+      end
     end
 
     private

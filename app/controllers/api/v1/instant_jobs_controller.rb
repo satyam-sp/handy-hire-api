@@ -4,7 +4,7 @@ class Api::V1::InstantJobsController < ApplicationController
   # Or if you have a general authentication: before_action :authenticate_user!, only: [:create]
 
   before_action :set_instance_job, only: [:show]
-  before_action :authorize_request, only: [:create, :get_active_jobs]
+  before_action :authorize_request, only: [:create, :get_active_jobs, :get_jobs_by_cords, :show]
 
   def show
     render json: Api::V1::InstantJobSerializer.new(@instance_job,{ params: {current_employee: current_employee, lang: params[:lang]} }).serializable_hash[:data][:attributes]
@@ -31,8 +31,17 @@ class Api::V1::InstantJobsController < ApplicationController
              .where(job_category_id: category_ids)
              .near([lat, lon], radius_km, units: :km)
 
+    applications = InstantJobApplication
+    .where(employee_id: current_employee.id, instant_job_id: jobs.map(&:id))
+    .index_by(&:instant_job_id)
 
-    render json: Api::V1::InstantJobsSerializer.new(jobs, is_collection: true).serializable_hash[:data]
+
+    render json: Api::V1::InstantJobsSerializer.new(jobs, {
+      params: {
+    current_employee: current_employee,
+    applications: applications
+  }
+    }).serializable_hash[:data]
 
   end
 

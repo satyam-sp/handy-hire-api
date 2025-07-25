@@ -16,10 +16,12 @@ class InstantJob < ApplicationRecord
     per_job: 2
   }
 
+
   has_many_attached :images
   
   geocoded_by :full_address
   after_validation :geocode, if: :address_changed?
+  after_create :generate_jid
 
 
   def full_address
@@ -61,6 +63,12 @@ class InstantJob < ApplicationRecord
     will_save_change_to_city? ||
     will_save_change_to_state? ||
     will_save_change_to_zipcode?
+  end
+
+  def generate_jid
+    padded_id = id.to_s.rjust(5, '0') # Pads with '0' on the left until string is 5 chars long
+    self.jid = "JID#{padded_id}"
+    update_columns(jid: self.jid)
   end
 
 

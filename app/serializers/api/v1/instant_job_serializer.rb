@@ -3,7 +3,7 @@ module Api
     class InstantJobSerializer
       include JSONAPI::Serializer
 
-      attributes  :title, :description, :latitude, :longitude, :status, :id, :price, :rate_type_humanize, :created_at,:slot_date, :slot_time
+      attributes  :title, :description, :latitude,:jid, :longitude, :status, :id, :price, :rate_type_humanize, :created_at,:slot_date, :slot_time
       # attribute :title do |job, params|
       #   get_translations(job, params)[:title]
       # end
@@ -42,23 +42,19 @@ module Api
           []
         end
       end
-      attribute :application_status do |job, params|
+      attribute :application do |object, params|
         employee = params[:current_employee]
-        if employee.present?
-          application = InstantJobApplication.find_by(employee: employee, instant_job: job)
-          application&.status
+        application = InstantJobApplication.find_by(employee_id: employee&.id, instant_job_id: object&.id)
+        if application
+          {
+            id: application.id,
+            status: application.status,
+            final_price: application.final_price,
+            slot_time: application.slot_time,
+            applied_at: application.created_at
+          }
         else
-          'pending'
-        end
-      end
-
-      attribute :final_price do |job, params|
-        employee = params[:current_employee]
-        if employee.present?
-          application = InstantJobApplication.find_by(employee: employee, instant_job: job)
-          application&.final_price
-        else
-          'pending'
+          nil
         end
       end
 

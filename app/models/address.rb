@@ -19,7 +19,6 @@ class Address < ApplicationRecord
 
   def full_address
     [address_line_1.strip, address_line_2.strip, city.strip, state.strip, zip_code.strip, 'india'].compact.join(', ')
-    binding.pry
   end
 
 

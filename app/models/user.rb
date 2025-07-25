@@ -10,6 +10,7 @@ class User < ApplicationRecord
 
   validates :profile_photo, content_type: ['image/png', 'image/jpeg'], size: { less_than: 5.megabytes }
   # before_create :generate_otp_secret
+  has_many :notifications, dependent: :destroy # Assuming user is a recipient of notifications
 
   def profile_photo_url
     profile_photo.attached? ? Rails.application.routes.url_helpers.rails_blob_url(profile_photo, only_path: true) : nil

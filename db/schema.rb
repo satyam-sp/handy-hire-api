@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_20_121142) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_25_125101) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -86,6 +86,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_20_121142) do
     t.integer "registration_step", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "fraud_level", default: 0
     t.index ["aadhaar_number"], name: "index_employees_on_aadhaar_number", unique: true
     t.index ["email"], name: "index_employees_on_email", unique: true
     t.index ["mobile_number"], name: "index_employees_on_mobile_number", unique: true
@@ -99,6 +100,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_20_121142) do
     t.boolean "archived", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slot_time"
     t.index ["employee_id"], name: "index_instant_job_applications_on_employee_id"
     t.index ["instant_job_id"], name: "index_instant_job_applications_on_instant_job_id"
   end
@@ -123,18 +125,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_20_121142) do
     t.integer "rate_type", default: 0, null: false
     t.date "slot_date"
     t.string "slot_time"
+    t.string "jid"
+    t.index ["jid"], name: "index_instant_jobs_on_jid"
     t.index ["job_category_id"], name: "index_instant_jobs_on_job_category_id"
     t.index ["latitude", "longitude"], name: "index_instant_jobs_on_latitude_and_longitude"
     t.index ["user_id"], name: "index_instant_jobs_on_user_id"
   end
 
   create_table "job_applications", force: :cascade do |t|
-    t.bigint "user_id", null: false
     t.bigint "job_id", null: false
     t.string "status", default: "pending", null: false
     t.text "cover_letter"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
     t.index ["job_id"], name: "index_job_applications_on_job_id"
     t.index ["user_id"], name: "index_job_applications_on_user_id"
   end
@@ -166,6 +170,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_20_121142) do
     t.datetime "updated_at", null: false
     t.index ["job_category_id"], name: "index_jobs_on_job_category_id"
     t.index ["user_id"], name: "index_jobs_on_user_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "employee_id"
+    t.string "notifiable_type", null: false
+    t.bigint "notifiable_id", null: false
+    t.text "message"
+    t.string "image_url"
+    t.boolean "read", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["employee_id"], name: "index_notifications_on_employee_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "reviews", force: :cascade do |t|
@@ -207,5 +226,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_20_121142) do
   add_foreign_key "job_categories", "job_categories", column: "parent_id"
   add_foreign_key "jobs", "job_categories"
   add_foreign_key "jobs", "users"
+  add_foreign_key "notifications", "employees"
+  add_foreign_key "notifications", "users"
   add_foreign_key "reviews", "jobs"
 end

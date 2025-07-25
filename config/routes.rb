@@ -42,17 +42,24 @@ Rails.application.routes.draw do
           patch  :update_avatar
         end
       end
-      resources :instant_jobs do
-        member do 
-          resources :instant_job_applications, only: [:create] do
-            collection do
-              post :cancel_application
-            end
+      resources :instant_jobs do # This creates routes like /instant_jobs/:instant_job_id
+        resources :instant_job_applications, only: [:create, :index] do # This nests applications under a specific instant_job
+          member do
+            delete :cancel_application 
+            put :update_status # This is a member action for an *individual* instant_job_application
+          end
+          collection do
+            get :revoke_application
           end
         end
         collection do
-          get :get_active_jobs
-          post :get_jobs_by_cords
+          get :get_active_jobs # Generates: GET /instant_jobs/get_active_jobs
+          post :get_jobs_by_cords # Generates: POST /instant_jobs/get_jobs_by_cords
+        end
+      end
+      resources :notifications, only: [:index] do
+        member do # `member` creates routes for a specific resource, e.g., /notifications/:id/mark_as_read
+          patch :mark_as_read
         end
       end
     end
